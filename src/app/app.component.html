@@ -1,0 +1,174 @@
+<main class="app-shell">
+  <section class="screen screen--loading" *ngIf="loading">
+    <div class="loading-card">
+      <div class="brand-mark">LOVEFLIX</div>
+      <p>Preparing your private story...</p>
+    </div>
+  </section>
+
+  <ng-container *ngIf="!loading && data">
+    <section class="screen gate-screen" *ngIf="stage === 'gate'">
+      <div class="gate-glow gate-glow--left"></div>
+      <div class="gate-glow gate-glow--right"></div>
+
+      <div class="gate-card">
+        <div class="brand-mark brand-mark--small">{{ data.brand }}</div>
+        <div class="private-access">Private Access</div>
+        <div class="lock-badge">LOCK</div>
+        <h1>{{ data.passwordPrompt }}</h1>
+        <p>{{ data.passwordHint }}</p>
+
+        <label class="password-field">
+          <span class="sr-only">Password</span>
+          <input
+            [(ngModel)]="password"
+            [placeholder]="data.defaultPassword"
+            type="password"
+            (keyup.enter)="submitPassword()"
+          />
+        </label>
+
+        <button class="primary-button" type="button" (click)="submitPassword()">
+          Enter {{ data.brand }}
+        </button>
+
+        <p class="error-text" *ngIf="errorMessage">{{ errorMessage }}</p>
+        <p class="gate-footer">{{ data.tagline }}</p>
+      </div>
+    </section>
+
+    <section class="screen intro-screen" *ngIf="stage === 'intro'">
+      <div class="intro-glow intro-glow--top"></div>
+      <div class="intro-glow intro-glow--bottom"></div>
+      <div class="intro-copy">
+        <div class="brand-mark brand-mark--hero">{{ data.brand }}</div>
+        <div class="intro-subtitle">{{ data.welcomeMessage }}</div>
+        <div class="intro-heart">&#10084;</div>
+      </div>
+    </section>
+
+    <section class="screen profile-screen" *ngIf="stage === 'profiles'">
+      <div class="brand-mark brand-mark--corner">{{ data.brand }}</div>
+
+      <div class="profile-panel">
+        <h2>Who's Watching?</h2>
+        <div class="profile-grid">
+          <button
+            class="profile-card"
+            *ngFor="let profile of data.profiles"
+            type="button"
+            (click)="enterProfile(profile)"
+            [style.--accent]="profile.accent"
+            [attr.data-profile]="profile.id"
+          >
+            <div class="profile-avatar">
+              <img [src]="profile.image" [alt]="profile.name" />
+            </div>
+            <div class="profile-name">{{ profile.name }}</div>
+            <div class="profile-subtitle">{{ profile.subtitle }}</div>
+            <div class="profile-enter">Enter</div>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen hero-screen" *ngIf="stage === 'hero'">
+      <div class="hero-video-block">
+        <img class="hero-backdrop" src="/assets/images/heroPoster.jpg" [alt]="data.heroTitle" />
+        <div class="hero-overlay"></div>
+      </div>
+
+      <header class="hero-topbar">
+        <div class="brand-mark brand-mark--small">{{ data.brand }}</div>
+      </header>
+
+      <section class="hero-stage">
+        <div class="hero-copy">
+          <div class="kicker">Original series</div>
+          <h1>{{ data.heroTitle }}</h1>
+          <h2>{{ data.heroSubtitle }}</h2>
+          <p class="hero-summary">{{ heroSummary() }}</p>
+
+          <div class="hero-stats">
+            <span *ngFor="let stat of data.stats">{{ stat.label }} <strong>{{ stat.value }}</strong></span>
+          </div>
+
+          <div class="hero-actions">
+            <button class="play-button" type="button" (click)="backToProfiles()">Back</button>
+            <button class="secondary-button" type="button" (click)="selectEpisode(activeEpisodeId)">Episodes</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="episodes-section">
+        <div class="section-title">
+          <h3>Episodes</h3>
+        </div>
+
+        <div class="episode-grid">
+          <article
+            class="episode-card"
+            *ngFor="let episode of data.episodes"
+            [attr.data-episode]="episode.id"
+            [class.episode-card--active]="activeEpisodeId === episode.id"
+            [style.--accent]="episode.accent"
+            (click)="selectEpisode(episode.id)"
+          >
+            <div class="episode-visual">
+              <video class="episode-video" autoplay muted loop playsinline preload="auto">
+                <source [attr.src]="episode.video" type="video/mp4" />
+              </video>
+              <div class="episode-visual-overlay"></div>
+            </div>
+            <div class="episode-body">
+              <div class="episode-badge">{{ episode.label }}</div>
+              <div class="episode-meta">{{ episode.duration }}</div>
+              <h4>{{ episode.title }}</h4>
+              <p>{{ episode.description }}</p>
+              <button
+                *ngIf="activeEpisodeId === episode.id"
+                class="watch-button"
+                type="button"
+                (click)="$event.stopPropagation(); openEpisode(episode)"
+              >
+                Watch Episode
+              </button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="about-section">
+        <div class="about-copy">
+          <div class="section-label">About {{ data.brand }}</div>
+          <p>{{ data.about }}</p>
+        </div>
+
+        <div class="metadata-row">
+          <span *ngFor="let item of data.metadata">{{ item }}</span>
+        </div>
+      </section>
+    </section>
+
+    <section class="screen player-screen" *ngIf="stage === 'player'">
+      <video
+        #playerVideo
+        class="player-video"
+        [attr.poster]="data.heroPoster"
+        autoplay
+        playsinline
+      >
+        <source [attr.src]="selectedEpisode?.video || data.heroVideo" type="video/mp4" />
+      </video>
+
+      <div class="player-overlay">
+        <button class="back-button" type="button" (click)="backFromPlayer()">Back</button>
+        <div class="player-copy">
+          <div class="section-label">Playing now</div>
+          <h2>{{ selectedEpisode?.title }}</h2>
+          <p>{{ selectedEpisode?.description }}</p>
+        </div>
+      </div>
+    </section>
+  </ng-container>
+</main>

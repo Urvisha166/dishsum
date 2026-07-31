@@ -1,0 +1,25 @@
+/* You can add global styles to this file, and also import other style files */
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: "Trebuchet MS", "Lucida Grande", "Helvetica Neue", sans-serif;
+  background: #050505;
+  color: #f7f1ef;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}

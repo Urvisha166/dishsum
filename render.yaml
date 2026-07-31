@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: dishsum
+    env: node
+    plan: free
+    buildCommand: npm install && npm install --prefix server && npm run build
+    startCommand: npm run api
+    envVars:
+      - key: SHOW_PASSWORD
+        sync: false
+      - key: MONGO_URI
+        sync: false
